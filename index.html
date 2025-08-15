@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pregnancy Journey — 1 to 9 Months</title>
+<style>
+  :root {
+    --bg: #fef6f9;
+    --card: #fff0f5;
+    --accent: #ff7fa8;
+    --text: #5a3e4d;
+  }
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    text-align: center;
+    overflow-y: auto;
+    height: 100vh;
+  }
+  canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1;
+  }
+  .card {
+    background: var(--card);
+    margin: 2rem auto;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    max-width: 400px;
+  }
+  h1 {
+    color: var(--accent);
+  }
+  .parents {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  .month {
+    font-size: 1.5rem;
+    margin: 1rem 0;
+  }
+  .memory {
+    font-size: 1rem;
+    color: #7a5e6b;
+    margin-bottom: 1rem;
+  }
+  .month-image {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+  }
+  button {
+    background: var(--accent);
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="card">
+  <h1>Pregnancy Journey</h1>
+  <div class="parents">Mother: Elena ❤ | Father: john 🤍</div>
+  <img id="monthImage" class="month-image" src="month1.jpg" alt="Month Image">
+  <p class="month" id="monthText"></p>
+  <p class="memory" id="memoryText"></p>
+  <button id="prevBtn">Prev</button>
+  <button id="nextBtn">Next</button>
+  <button id="audioBtn">⏯ Music</button>
+</div>
+<audio id="bgAudio" loop>
+  <source src="531f-8b83-4fe4-83c1-84e3f2f4bde3.mp3" type="audio/mpeg">
+</audio>
+<script>
+const months = [
+  {text: "Month 1 — The journey begins ❤", memory: "The joy of finding out!", img: "month1.jpg"},
+  {text: "Month 2 — Tiny heartbeats start", memory: "Hearing the heartbeat for the first time.", img: "month2.jpg"},
+  {text: "Month 3 — First flutters of life", memory: "Sharing the news with close family.", img: "month3.jpg"},
+  {text: "Month 4 — Baby bump shows", memory: "Shopping for the first maternity dress.", img: "month4.jpg"},
+  {text: "Month 5 — Kicks get stronger", memory: "Feeling those playful kicks together.", img: "month5.jpg"},
+  {text: "Month 6 — Hearing your voices", memory: "Baby responds when daddy talks.", img: "month6.jpg"},
+  {text: "Month 7 — Almost ready", memory: "Setting up the nursery room.", img: "month7.jpg"},
+  {text: "Month 8 — So close now", memory: "Packing the hospital bag.", img: "month8.jpg"},
+  {text: "Month 9 — Welcome to the world! 🎉", memory: "The happiest day of our lives.", img: "month9.jpg"}
+];
+let current = 0;
+const monthText = document.getElementById('monthText');
+const memoryText = document.getElementById('memoryText');
+const monthImage = document.getElementById('monthImage');
+function updateMonth() {
+  monthText.textContent = months[current].text;
+  memoryText.textContent = months[current].memory;
+  monthImage.src = months[current].img;
+}
+updateMonth();
+
+document.getElementById('prevBtn').onclick = () => {
+  if(current > 0) { current--; updateMonth(); }
+}
+document.getElementById('nextBtn').onclick = () => {
+  if(current < months.length - 1) { current++; updateMonth(); }
+}
+
+// Music play/pause button
+const audio = document.getElementById('bgAudio');
+const audioBtn = document.getElementById('audioBtn');
+audioBtn.onclick = () => {
+  if(audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+}
+
+// Heart-shaped background animation
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let hearts = [];
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+function createHeart() {
+  hearts.push({x: Math.random()*canvas.width, y: canvas.height + 20, size: Math.random()*20+10, speed: Math.random()*1+0.5});
+}
+function drawHeart(x, y, size) {
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.bezierCurveTo(x, y - size/2, x - size, y - size/2, x - size, y);
+  ctx.bezierCurveTo(x - size, y + size/2, x, y + size, x, y + size*1.5);
+  ctx.bezierCurveTo(x, y + size, x + size, y + size/2, x + size, y);
+  ctx.bezierCurveTo(x + size, y - size/2, x, y - size/2, x, y);
+  ctx.fill();
+}
+function drawHearts() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = current % 2 === 0 ? 'rgba(255,127,168,0.7)' : 'rgba(127,200,255,0.7)';
+  for(let h of hearts){
+    drawHeart(h.x, h.y, h.size);
+    h.y -= h.speed;
+  }
+  hearts = hearts.filter(h => h.y + h.size > 0);
+}
+function animate(){
+  if(Math.random() < 0.05) createHeart();
+  drawHearts();
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>
